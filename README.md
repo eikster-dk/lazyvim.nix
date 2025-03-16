@@ -25,7 +25,7 @@ nix registry add nvim-eikster github:eikster-dk/lazyvim.nix
 Just issue the following command:
 
 ```console
-nix run github:eikster-dk/lazyvim#lazyvim
+nix run github:eikster-dk/lazyvim.nix#lazyvim
 ```
 
 ## Acknowledgements
