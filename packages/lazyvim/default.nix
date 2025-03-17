@@ -7,11 +7,17 @@
 }:
 let
   inherit (pkgs) lib;
-  config = import ./config.nix { inherit pkgs; };
+  config = import ./config.nix { inherit pkgs lib; };
 in
 
 pkgs.writeShellScriptBin "nvim" ''
   set -efu
+  unset VIMINIT
+  export PATH=${pkgs.buildEnv {
+    name = "lsp-servers";
+    paths = config.lspPackages;
+  }}/bin:$PATH
+
   export NVIM_APPNAME="eikster-lazyvim"
 
   # Ensure XDG folders
@@ -23,7 +29,7 @@ pkgs.writeShellScriptBin "nvim" ''
   NVIM_DATA="$XDG_DATA_HOME/$NVIM_APPNAME"
 
   # Link custom config and install plugins
-  ln -sfn ${config} "$NVIM_CONFIG"
+  ln -sfT ${config} "$NVIM_CONFIG"
   ${pkgs.neovim}/bin/nvim --headless -c 'quitall'
 
   exec ${pkgs.neovim}/bin/nvim "$@"

@@ -1,10 +1,32 @@
 { pkgs
+, lib
 , ...
 }:
 let
-  ## TODO perform lsp installation with nix instead of mason
-  lspToolingPkgs = with pkgs;
+  lspPackages = with pkgs;
     [
+      clang-tools
+      delve
+      go
+      gofumpt
+      golangci-lint
+      golines
+      gomodifytags
+      gopls
+      gotests
+      gotools
+      govulncheck
+      iferr
+      impl
+      isort
+      marksman
+      nil
+      nodePackages.bash-language-server
+      nodePackages.prettier
+      nodejs
+      sqlfluff
+      stylua
+      sumneko-lua-language-server
     ];
 in
 pkgs.stdenv.mkDerivation {
@@ -19,7 +41,11 @@ pkgs.stdenv.mkDerivation {
     # copy the astronvim config
     cp -rs ${./config}/. $out
 
+    ${lib.concatMapStringsSep "\n" (grammar: ''
+      ln -s $(readlink -f ${grammar}/parser/*.so) $out/parser/${lib.last (builtins.split "-" grammar.name)}.so
+    '')
+    pkgs.vimPlugins.nvim-treesitter.withAllGrammars.dependencies}
   '';
 
-  passthru.lspToolingPkgs = lspToolingPkgs;
+  passthru.lspPackages = lspPackages;
 }
